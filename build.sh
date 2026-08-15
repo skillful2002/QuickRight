@@ -5,33 +5,29 @@
 # 前置条件（仅首次需要，需你本人在终端执行）：
 #   1) 同意 Xcode 许可协议（需管理员密码）：
 #        sudo xcodebuild -license accept
-#   2) Xcode → 设置 → 账户，登录你的 Apple ID
-#        - 免费账号可做「开发签名」，App 仅能在你这台 Mac 上运行
-#        - 付费 Developer Program 才能在后台注册 App Group 并做 Developer ID 分发
-#   3) 开发者后台(https://developer.apple.com)注册 App Group：
-#        group.tech.newxin-quickright.app
-#      （本仓库已启用该 App Group，Xcode 自动签名会生成对应描述文件）
+#   2) 安装 Xcode 命令行工具（已含 xcodebuild）
+#
+# 关于签名（重要）：
+#   本工程使用「固定路径共享配置」，不依赖 App Group，因此
+#   免费 Apple ID 也能打包。Xcode 26 提供 “Sign to Run Locally”
+#   （ad-hoc 本地签名），无需任何开发者账号即可 archive 出可
+#   在本机运行的 .app（含 Finder 扩展）。
+#   - 不填 DEVELOPMENT_TEAM：走本地签名（免费账号即可）
+#   - 填了付费 Team ID：使用开发/分发证书签名
 #
 # 用法：
-#   DEVELOPMENT_TEAM=你的10位TeamID ./build.sh app   # 本机开发签名，产出 QuickRight.app
-#   DEVELOPMENT_TEAM=你的10位TeamID ./build.sh dmg   # Developer ID 签名，产出 QuickRight.dmg
+#   ./build.sh app                # 本地签名，产出 build/QuickRight.app
+#   ./build.sh dmg                # 本地签名，产出 build/QuickRight.dmg
+#   DEVELOPMENT_TEAM=XXXX ./build.sh dmg   # 付费账号：用 Team 证书签名
 #
 # 说明：
 #   - 脚本会先 xcodegen generate 重建工程，再 archive
-#   - app 模式：直接从 xcarchive 拷贝 .app（开发证书签名，仅本机可用）
-#   - dmg 模式：用 developer-id 导出并打成 .dmg（需付费账号 + Developer ID 证书）
-#   - 公证(notarization)需 App Store Connect API Key，见脚本末尾注释
+#   - 公证(notarization)需付费 Developer ID + App Store Connect API Key
 # =====================================================================
 set -euo pipefail
 
 TEAM_ID="${DEVELOPMENT_TEAM:-}"
 MODE="${1:-app}"   # app | dmg
-
-if [[ -z "$TEAM_ID" ]]; then
-  echo "❌ 缺少 Team ID。用法：" >&2
-  echo "   DEVELOPMENT_TEAM=你的10位TeamID ./build.sh [app|dmg]" >&2
-  exit 1
-fi
 
 cd "$(dirname "$0")"
 
@@ -49,43 +45,27 @@ fi
 echo "▶ 生成 Xcode 工程 (xcodegen generate)"
 xcodegen generate
 
-# 2) 准备导出选项
-if [[ "$MODE" == "dmg" ]]; then
-  METHOD="developer-id"
-else
-  METHOD="mac-application"
+# 2) Archive
+#    不传 DEVELOPMENT_TEAM 时，Xcode 26 自动使用 “Sign to Run Locally” 本地签名
+ARCHIVE_ARGS=(
+  -project QuickRight.xcodeproj
+  -scheme QuickRight
+  -configuration Release
+  -archivePath build/Archive/QuickRight.xcarchive
+  ARCHS=arm64
+  ONLY_ACTIVE_ARCH=NO
+  CODE_SIGN_STYLE=Automatic
+  clean archive
+)
+if [[ -n "$TEAM_ID" ]]; then
+  ARCHIVE_ARGS+=(DEVELOPMENT_TEAM="$TEAM_ID")
 fi
 
-mkdir -p build
-cat > build/ExportOptions.plist <<PLIST
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>method</key>
-  <string>${METHOD}</string>
-  <key>signingStyle</key>
-  <string>automatic</string>
-  <key>teamID</key>
-  <string>${TEAM_ID}</string>
-</dict>
-</plist>
-PLIST
-
-# 3) Archive（仅编译 arm64，Apple Silicon；如需通用可改为 "arm64 x86_64"）
 echo "▶ Archive (scheme=QuickRight, configuration=Release)"
-rm -rf build/Archive build/Export
-xcodebuild -project QuickRight.xcodeproj \
-  -scheme QuickRight \
-  -configuration Release \
-  -archivePath build/Archive/QuickRight.xcarchive \
-  ARCHS=arm64 \
-  ONLY_ACTIVE_ARCH=NO \
-  CODE_SIGN_STYLE=Automatic \
-  DEVELOPMENT_TEAM="$TEAM_ID" \
-  clean archive
+rm -rf build/Archive
+xcodebuild "${ARCHIVE_ARGS[@]}"
 
-# 4) 取出 .app
+# 3) 取出 .app
 APP_IN_ARCHIVE="build/Archive/QuickRight.xcarchive/Products/Applications/QuickRight.app"
 if [[ ! -d "$APP_IN_ARCHIVE" ]]; then
   echo "❌ 未在归档中找到 QuickRight.app" >&2
@@ -93,20 +73,18 @@ if [[ ! -d "$APP_IN_ARCHIVE" ]]; then
 fi
 
 if [[ "$MODE" == "dmg" ]]; then
-  echo "▶ 用 developer-id 导出 .app"
-  xcodebuild -exportArchive \
-    -archivePath build/Archive/QuickRight.xcarchive \
-    -exportOptionsPlist build/ExportOptions.plist \
-    -exportPath build/Export
-  APP="$(find build/Export -name 'QuickRight.app' -maxdepth 2 | head -1)"
   echo "▶ 打包 DMG"
+  rm -rf build/dist && mkdir -p build/dist
+  cp -R "$APP_IN_ARCHIVE" build/dist/
   rm -f build/QuickRight.dmg
-  hdiutil create -volname QuickRight -srcfolder "$APP" -ov -format UDZO build/QuickRight.dmg
+  hdiutil create -volname QuickRight -srcfolder build/dist -ov -format UDZO build/QuickRight.dmg
   echo "✅ 已生成 build/QuickRight.dmg"
-  echo "   提示：对外分发前建议公证："
-  echo "   xcrun notarytool submit build/QuickRight.dmg --keychain-profile <profile> --wait"
+  if [[ -z "$TEAM_ID" ]]; then
+    echo "   注意：当前为本地(ad-hoc)签名，分发给他人的 Mac 会被 Gatekeeper 拦截；"
+    echo "   本机自测可用。对外分发需用付费 Developer ID 签名并公证。"
+  fi
 else
-  echo "▶ 拷贝开发签名版 .app"
+  echo "▶ 拷贝 .app"
   rm -rf build/QuickRight.app
   cp -R "$APP_IN_ARCHIVE" build/QuickRight.app
   echo "✅ 已生成 build/QuickRight.app"

@@ -29,14 +29,15 @@ open QuickRight.xcodeproj
 ```
 
 在 Xcode 中：
-1. 选中 `QuickRight` 和 `QuickRightFinder` 两个 target，开启 **Signing & Capabilities → App Groups**，均填入 `group.tech.newxin-quickright.app`（与代码中的 `AppInfo.appGroupID` 一致；App Group 必须以 `group.` 开头）。
-2. 选择你的 Development Team（或在 `project.yml` 的 `DEVELOPMENT_TEAM` 填入 Team ID）。
+1. 选中 `QuickRight` scheme 直接运行即可。本工程使用固定路径（`~/Library/Application Support/QuickRight/`）共享配置，**不需要 App Group**，因此免费 Apple ID 也能签名打包。
+2. Xcode 26 默认使用 “Sign to Run Locally” 本地签名（ad-hoc），无需任何开发者账号即可出包；如需付费分发证书，在 `project.yml` 的 `DEVELOPMENT_TEAM` 填入 Team ID 即可。
 3. 运行 `QuickRight` scheme。
 
-> 已提供一键打包脚本 `build.sh`：
+> 已提供一键打包脚本 `build.sh`（免费账号可直接用）：
 > ```bash
-> DEVELOPMENT_TEAM=你的10位TeamID ./build.sh app   # 本机开发签名，产出 build/QuickRight.app
-> DEVELOPMENT_TEAM=你的10位TeamID ./build.sh dmg   # Developer ID 签名，产出 build/QuickRight.dmg
+> ./build.sh app     # 本地签名，产出 build/QuickRight.app
+> ./build.sh dmg     # 本地签名，产出 build/QuickRight.dmg
+> # 付费账号可加 Team：DEVELOPMENT_TEAM=你的TeamID ./build.sh dmg
 > ```
 
 ### 方式二：手动在 Xcode 创建
@@ -44,7 +45,7 @@ open QuickRight.xcodeproj
 1. 新建 macOS App（SwiftUI）工程，产品名 `QuickRight`。
 2. `File → New → Target → Finder Sync Extension`，产品名 `QuickRightFinder`，Principal Class 为 `FinderSync`。
 3. 把本仓库 `Shared/`、`QuickRight/`、`QuickRightFinder/` 下的源文件加入对应 target（Shared 两个 target 都加）。
-4. 两个 target 都开启相同的 App Group。
+4. 两个 target 均**无需**开启 App Group（本工程用固定路径共享配置）。
 5. 把 `QuickRight/QuickRight.entitlements` 与 `QuickRightFinder/QuickRightFinder.entitlements` 设为对应 target 的 Entitlements 文件。
 
 ## 启用 Finder 扩展（关键）
