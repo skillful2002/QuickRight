@@ -10,6 +10,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let store = ConfigStore()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // 首次启动：若配置文件尚不存在，写入默认配置，保证主程序与扩展读到一致内容。
+        if ConfigIO.load() == nil {
+            ConfigIO.save(store.config)
+        }
         showSettings()
 
         // 扩展在用户点击右键「设置」时发送此通知，确保即使本程序已在运行也能把窗口提到前台。
@@ -50,5 +54,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 关闭最后一个窗口即退出（工具类 App 行为）。
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         true
+    }
+
+    /// 点击 Dock 图标时若窗口已关，重新唤出（否则关掉窗口后点 Dock 无反应）。
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        showSettings()
+        return true
     }
 }

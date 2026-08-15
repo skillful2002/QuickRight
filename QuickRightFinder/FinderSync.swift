@@ -17,9 +17,9 @@ final class FinderSync: FIFinderSync {
 
     /// 每次右键都会调用，直接从 App Group 读取最新配置构建菜单（天然实时生效）。
     override func menu(for menuKind: FIMenuKind) -> NSMenu? {
-        guard let config = ConfigIO.load() else {
-            return NSMenu(title: "右键快捷")
-        }
+        // 配置文件不存在（首次使用、尚未在设置里保存）时，回退到默认配置，
+        // 保证菜单始终有内容；返回空菜单在 Finder 里可能完全不显示。
+        let config = ConfigIO.load() ?? .default
         return MenuBuilder.buildMenu(config: config)
     }
 }
