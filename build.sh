@@ -27,6 +27,9 @@
 set -euo pipefail
 
 TEAM_ID="${DEVELOPMENT_TEAM:-}"
+# 显式指定签名证书类型。本机若只有“Apple Development”（跨平台开发证书）而 Xcode
+# 默认要“Mac Development”，可设 CODE_SIGN_IDENTITY="Apple Development" 强制使用它。
+SIGN_IDENTITY="${CODE_SIGN_IDENTITY:-}"
 MODE="${1:-app}"   # app | dmg
 
 cd "$(dirname "$0")"
@@ -66,6 +69,9 @@ ARCHIVE_ARGS=(
 )
 if [[ -n "$TEAM_ID" ]]; then
   ARCHIVE_ARGS+=(DEVELOPMENT_TEAM="$TEAM_ID")
+fi
+if [[ -n "$SIGN_IDENTITY" ]]; then
+  ARCHIVE_ARGS+=(CODE_SIGN_IDENTITY="$SIGN_IDENTITY")
 fi
 
 echo "▶ Archive (scheme=QuickRight, configuration=Release)"

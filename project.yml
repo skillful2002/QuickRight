@@ -68,3 +68,17 @@ targets:
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: YES
+
+# 显式定义共享 Scheme，确保命令行 xcodebuild -scheme QuickRight 可用，
+# 也避免 Xcode 里因缺少 scheme 而误选扩展 target 导致“运行无反应”。
+schemes:
+  QuickRight:
+    build:
+      targets:
+        QuickRight: all
+        QuickRightFinder: all
+    run:
+      target: QuickRight
+    archive:
+      target: QuickRight
+      revealArchiveInOrganizer: false
