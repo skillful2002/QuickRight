@@ -28,9 +28,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if window == nil {
             let root = ContentView().environmentObject(store)
             let controller = NSHostingController(rootView: root)
+            // 让窗口按 SwiftUI 内容的固有尺寸自动撑开，否则内容尺寸为 0 导致窗口不可见。
+            if #available(macOS 13.0, *) {
+                controller.sizingOptions = [.intrinsicContentSize]
+            }
             let win = NSWindow(contentViewController: controller)
             win.title = "右键快捷 - 设置"
             win.styleMask = [.titled, .closable, .miniaturizable]
+            win.setContentSize(NSSize(width: 540, height: 440))
+            win.contentMinSize = NSSize(width: 540, height: 440)
             win.center()
             window = win
         }

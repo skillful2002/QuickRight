@@ -12,6 +12,7 @@ settings:
     SWIFT_VERSION: "6.0"
     CODE_SIGN_STYLE: Automatic
     ENABLE_HARDENED_RUNTIME: true
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     # 本地构建前请填入你的 Developer Team ID；未填时 Xcode 会提示选择。
     DEVELOPMENT_TEAM: ""
 targets:

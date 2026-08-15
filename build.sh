@@ -73,12 +73,14 @@ if [[ ! -d "$APP_IN_ARCHIVE" ]]; then
 fi
 
 if [[ "$MODE" == "dmg" ]]; then
-  echo "▶ 打包 DMG"
+  echo "▶ 打包 DMG（标准布局：App + 拖到应用程序）"
   rm -rf build/dist && mkdir -p build/dist
   cp -R "$APP_IN_ARCHIVE" build/dist/
+  # 提供“应用程序”快捷方式，用户可直接拖拽安装
+  ln -s /Applications build/dist/Applications
   rm -f build/QuickRight.dmg
   hdiutil create -volname QuickRight -srcfolder build/dist -ov -format UDZO build/QuickRight.dmg
-  echo "✅ 已生成 build/QuickRight.dmg"
+  echo "✅ 已生成 build/QuickRight.dmg（双击打开后把 QuickRight.app 拖到 Applications 即可）"
   if [[ -z "$TEAM_ID" ]]; then
     echo "   注意：当前为本地(ad-hoc)签名，分发给他人的 Mac 会被 Gatekeeper 拦截；"
     echo "   本机自测可用。对外分发需用付费 Developer ID 签名并公证。"
