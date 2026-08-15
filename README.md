@@ -29,9 +29,15 @@ open QuickRight.xcodeproj
 ```
 
 在 Xcode 中：
-1. 选中 `QuickRight` 和 `QuickRightFinder` 两个 target，开启 **Signing & Capabilities → App Groups**，均填入 `tech.newxin-quickright.app`（与代码中的 `AppInfo.appGroupID` 一致）。
+1. 选中 `QuickRight` 和 `QuickRightFinder` 两个 target，开启 **Signing & Capabilities → App Groups**，均填入 `group.tech.newxin-quickright.app`（与代码中的 `AppInfo.appGroupID` 一致；App Group 必须以 `group.` 开头）。
 2. 选择你的 Development Team（或在 `project.yml` 的 `DEVELOPMENT_TEAM` 填入 Team ID）。
 3. 运行 `QuickRight` scheme。
+
+> 已提供一键打包脚本 `build.sh`：
+> ```bash
+> DEVELOPMENT_TEAM=你的10位TeamID ./build.sh app   # 本机开发签名，产出 build/QuickRight.app
+> DEVELOPMENT_TEAM=你的10位TeamID ./build.sh dmg   # Developer ID 签名，产出 build/QuickRight.dmg
+> ```
 
 ### 方式二：手动在 Xcode 创建
 

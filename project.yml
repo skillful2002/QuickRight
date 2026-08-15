@@ -9,7 +9,7 @@ options:
 settings:
   base:
     MACOSX_DEPLOYMENT_TARGET: "14.0"
-    SWIFT_VERSION: "5.9"
+    SWIFT_VERSION: "6.0"
     CODE_SIGN_STYLE: Automatic
     ENABLE_HARDENED_RUNTIME: true
     # 本地构建前请填入你的 Developer Team ID；未填时 Xcode 会提示选择。
@@ -36,7 +36,7 @@ targets:
       path: QuickRight/QuickRight.entitlements
       properties:
         com.apple.security.application-groups:
-          - tech.newxin-quickright.app
+          - group.tech.newxin-quickright.app
         com.apple.security.files.user-selected.read-write: true
     dependencies:
       - target: QuickRightFinder
@@ -60,7 +60,7 @@ targets:
       path: QuickRightFinder/QuickRightFinder.entitlements
       properties:
         com.apple.security.application-groups:
-          - tech.newxin-quickright.app
+          - group.tech.newxin-quickright.app
         com.apple.security.files.user-selected.read-only: true
     settings:
       base:

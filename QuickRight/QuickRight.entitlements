@@ -4,7 +4,7 @@
 <dict>
     <key>com.apple.security.application-groups</key>
     <array>
-        <string>tech.newxin-quickright.app</string>
+        <string>group.tech.newxin-quickright.app</string>
     </array>
     <key>com.apple.security.files.user-selected.read-write</key>
     <true/>
