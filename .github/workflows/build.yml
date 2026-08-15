@@ -1,0 +1,41 @@
+name: Build QuickRight
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      # 开源未签名构建：关闭签名以产出可在本地使用的 .app。
+      # 正式分发请配置 Developer ID 证书并开启签名/公证。
+      - name: Build (unsigned)
+        run: |
+          xcodebuild \
+            -scheme QuickRight \
+            -configuration Release \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Package
+        run: |
+          cd build/Build/Products/Release
+          zip -r QuickRight.app.zip QuickRight.app
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuickRight.app
+          path: build/Build/Products/Release/QuickRight.app.zip

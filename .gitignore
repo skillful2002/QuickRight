@@ -1,0 +1,21 @@
+# Xcode
+*.xcodeproj
+*.xcworkspace
+DerivedData/
+build/
+*.hmap
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+xcuserdata/
+
+# Swift
+.swiftpm/
+*.swiftsourceinfo
+
+# Misc
+.DS_Store
+*.zip
+
+# Local project memory / WorkBuddy data
+.workbuddy/
