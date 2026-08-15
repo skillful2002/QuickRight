@@ -30,7 +30,7 @@ open QuickRight.xcodeproj
 
 在 Xcode 中：
 1. 选中 `QuickRight` scheme 直接运行即可。本工程使用固定路径（`~/Library/Application Support/QuickRight/`）共享配置，**不需要 App Group**，因此免费 Apple ID 也能签名打包。
-2. Xcode 26 默认使用 “Sign to Run Locally” 本地签名（ad-hoc），无需任何开发者账号即可出包；如需付费分发证书，在 `project.yml` 的 `DEVELOPMENT_TEAM` 填入 Team ID 即可。
+2. **必须用你的 Apple ID（免费即可）作为 Team 做“开发签名”**：在两个 target 的 `Signing & Capabilities` 里选中你的 Apple ID。注意：不要留空走 “Sign to Run Locally”（ad-hoc）签名——那样主程序能跑，但 **Finder Sync 扩展不会被系统加载**，右键菜单永远出不来。
 3. 运行 `QuickRight` scheme。
 
 > 已提供一键打包脚本 `build.sh`（免费账号可直接用）：
@@ -48,13 +48,24 @@ open QuickRight.xcodeproj
 4. 两个 target 均**无需**开启 App Group（本工程用固定路径共享配置）。
 5. 把 `QuickRight/QuickRight.entitlements` 与 `QuickRightFinder/QuickRightFinder.entitlements` 设为对应 target 的 Entitlements 文件。
 
-## 启用 Finder 扩展（关键）
+## 启用 Finder 扩展（关键，缺一不可）
 
-首次运行后，右键菜单不会自动出现，需要手动启用扩展：
+首次运行后右键菜单**不会自动出现**，必须满足以下全部条件：
 
-1. 系统设置 → 隐私与安全性 → 扩展 → **Finder 扩展**，勾选「右键快捷」。
-2. 若菜单仍未出现，可在访达中按住 Option 右键点击 Dock 上的访达图标 → 重新启动访达。
-3. 在 Finder 任意位置或桌面右键，即可看到新增菜单。
+1. **App 必须装在 `/Applications`**（或 `~/Applications`）。装在其他位置（下载、桌面、build 目录）系统不会注册其扩展。
+2. **手动启用扩展**：
+   - macOS 15.2+：系统设置 → 通用 → 登录项与扩展 → **文件提供方(File Providers)**，在「右键快捷」后打开开关。
+   - macOS 14 / 15.0–15.1：系统设置 → 隐私与安全性 → 扩展 → **Finder 扩展**，勾选「右键快捷」。
+   - 若系统设置的扩展列表里**根本看不到**「右键快捷」，说明扩展没被注册：先确认 App 在 `/Applications`，再到「控制台」搜索 `QuickRightFinder` 看是否有“扩展已初始化”日志（没有则说明签名不对，需换带 Team 的开发签名）。
+3. **重启访达**：在访达中按住 Option 键右键点击 Dock 上的访达图标 → 重新启动访达（或直接 `killall Finder`）。
+4. 在 Finder 任意位置或桌面右键，即可看到新增菜单。
+
+> 若以上都做了仍不出现，可用命令行强制注册/启用（把路径换成你的实际路径）：
+> ```bash
+> pluginkit -a /Applications/QuickRight.app/Contents/PlugIns/QuickRightFinder.appex
+> pluginkit -e use -i com.quickright.QuickRightFinder
+> ```
+> 然后重启访达。
 
 > 默认只监控用户主目录（桌面/下载/文档等）。如需在外接磁盘等位置也出现菜单，请开启「完全磁盘访问」并将 `FinderSync.swift` 中 `directoryURLs` 改为监控 `"/"`。
 

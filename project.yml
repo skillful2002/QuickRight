@@ -13,8 +13,10 @@ settings:
     CODE_SIGN_STYLE: Automatic
     ENABLE_HARDENED_RUNTIME: true
     ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-    # 本地构建前请填入你的 Developer Team ID；未填时 Xcode 会提示选择。
-    DEVELOPMENT_TEAM: ""
+    # 不在此硬编码 DEVELOPMENT_TEAM：请在 Xcode 的 Signing & Capabilities 里
+    # 为两个 target 选择你的 Apple ID（免费账号即可）作为 Team。
+    # Finder Sync 扩展必须用「带 Team 的正式开发签名」才能被系统加载进 Finder；
+    # 留空会被 Xcode 26 当成 ad-hoc 本地签名，扩展将不会被 Finder 加载。
 targets:
   QuickRight:
     type: application

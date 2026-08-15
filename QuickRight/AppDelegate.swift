@@ -28,15 +28,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if window == nil {
             let root = ContentView().environmentObject(store)
             let controller = NSHostingController(rootView: root)
-            // 让窗口按 SwiftUI 内容的固有尺寸自动撑开，否则内容尺寸为 0 导致窗口不可见。
-            if #available(macOS 13.0, *) {
-                controller.sizingOptions = [.intrinsicContentSize]
-            }
-            let win = NSWindow(contentViewController: controller)
+            // 注意：不要用 .intrinsicContentSize，它会让窗口按 SwiftUI 内容的“固有尺寸”
+            // 收缩，而 TabView 的固有尺寸可能解析为 0，导致窗口不可见。
+            // 这里直接以固定 540×440 显式建窗，内容用 .frame 填满即可稳定可见。
+            let win = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 540, height: 440),
+                styleMask: [.titled, .closable, .miniaturizable],
+                backing: .buffered,
+                defer: false
+            )
+            win.contentViewController = controller
             win.title = "右键快捷 - 设置"
-            win.styleMask = [.titled, .closable, .miniaturizable]
-            win.setContentSize(NSSize(width: 540, height: 440))
-            win.contentMinSize = NSSize(width: 540, height: 440)
+            win.isReleasedWhenClosed = false
             win.center()
             window = win
         }

@@ -8,17 +8,17 @@
 #   2) 安装 Xcode 命令行工具（已含 xcodebuild）
 #
 # 关于签名（重要）：
-#   本工程使用「固定路径共享配置」，不依赖 App Group，因此
-#   免费 Apple ID 也能打包。Xcode 26 提供 “Sign to Run Locally”
-#   （ad-hoc 本地签名），无需任何开发者账号即可 archive 出可
-#   在本机运行的 .app（含 Finder 扩展）。
-#   - 不填 DEVELOPMENT_TEAM：走本地签名（免费账号即可）
-#   - 填了付费 Team ID：使用开发/分发证书签名
+#   本工程使用「固定路径共享配置」，不依赖 App Group，因此免费 Apple ID 也能打包。
+#   但是——Finder Sync 扩展必须「带 Team 的正式开发签名」才能被系统注入 Finder；
+#   若用 Xcode 26 的 “Sign to Run Locally”（ad-hoc，无 Team）签名，扩展不会被 Finder
+#   加载，右键菜单就永远出不来。所以请务必用你的 Apple ID（免费即可）Team 签名：
+#   - 在 Xcode 的 Signing & Capabilities 里为两个 target 选中你的 Apple ID 作为 Team；
+#   - 或用本脚本传入 Team： DEVELOPMENT_TEAM=你的TeamID ./build.sh dmg
 #
 # 用法：
-#   ./build.sh app                # 本地签名，产出 build/QuickRight.app
-#   ./build.sh dmg                # 本地签名，产出 build/QuickRight.dmg
-#   DEVELOPMENT_TEAM=XXXX ./build.sh dmg   # 付费账号：用 Team 证书签名
+#   ./build.sh app                # 用选中/传入的 Team 签名，产出 build/QuickRight.app
+#   ./build.sh dmg                # 用选中/传入的 Team 签名，产出 build/QuickRight.dmg
+#   DEVELOPMENT_TEAM=XXXX ./build.sh dmg   # 显式指定免费/付费 Team ID 签名
 #
 # 说明：
 #   - 脚本会先 xcodegen generate 重建工程，再 archive
@@ -46,7 +46,14 @@ echo "▶ 生成 Xcode 工程 (xcodegen generate)"
 xcodegen generate
 
 # 2) Archive
-#    不传 DEVELOPMENT_TEAM 时，Xcode 26 自动使用 “Sign to Run Locally” 本地签名
+#    必须带 Team 签名（在 Xcode 选中你的 Apple ID，或用 DEVELOPMENT_TEAM 传入）。
+#    不传 Team 时走 ad-hoc 本地签名：主程序能跑，但 Finder 扩展不会被加载。
+if [[ -z "$TEAM_ID" ]]; then
+  echo "⚠️  未指定 DEVELOPMENT_TEAM，将走 ad-hoc 本地签名。" >&2
+  echo "    主程序可运行，但 Finder Sync 扩展不会被系统加载，右键菜单不会出现的！" >&2
+  echo "    请在 Xcode 为两个 target 选中你的 Apple ID（免费即可）后重试，或用：" >&2
+  echo "    DEVELOPMENT_TEAM=你的TeamID ./build.sh dmg" >&2
+fi
 ARCHIVE_ARGS=(
   -project QuickRight.xcodeproj
   -scheme QuickRight
@@ -82,8 +89,10 @@ if [[ "$MODE" == "dmg" ]]; then
   hdiutil create -volname QuickRight -srcfolder build/dist -ov -format UDZO build/QuickRight.dmg
   echo "✅ 已生成 build/QuickRight.dmg（双击打开后把 QuickRight.app 拖到 Applications 即可）"
   if [[ -z "$TEAM_ID" ]]; then
-    echo "   注意：当前为本地(ad-hoc)签名，分发给他人的 Mac 会被 Gatekeeper 拦截；"
-    echo "   本机自测可用。对外分发需用付费 Developer ID 签名并公证。"
+    echo "⚠️  当前为 ad-hoc 本地签名：主程序能用，但右键菜单扩展不会被 Finder 加载。"
+    echo "    请用你的 Apple ID Team 重新签名：DEVELOPMENT_TEAM=你的TeamID ./build.sh dmg"
+  else
+    echo "   已用 Team($TEAM_ID) 签名，扩展可被 Finder 加载（仍需在系统设置中手动启用）。"
   fi
 else
   echo "▶ 拷贝 .app"
