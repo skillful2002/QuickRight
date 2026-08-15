@@ -188,6 +188,7 @@ struct AboutView: View {
 
 // MARK: - 文件选择辅助
 
+@MainActor
 func chooseFolder() -> URL? {
     let panel = NSOpenPanel()
     panel.canChooseFiles = false
@@ -196,6 +197,7 @@ func chooseFolder() -> URL? {
     return panel.runModal() == .OK ? panel.url : nil
 }
 
+@MainActor
 func chooseApp() -> URL? {
     let panel = NSOpenPanel()
     panel.allowedContentTypes = [.application]

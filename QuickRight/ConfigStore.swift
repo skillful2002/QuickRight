@@ -12,7 +12,7 @@ final class ConfigStore: ObservableObject {
         self.config = ConfigIO.load() ?? .default
         self.cancellable = $config
             .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
-            .sink { [weak self] config in
+            .sink { config in
                 ConfigIO.save(config)
             }
     }

@@ -4,6 +4,7 @@ import SwiftUI
 /// 主程序入口：标准窗口 App，不常驻菜单栏。
 /// 双击运行即弹出设置窗口；扩展点击右键菜单「设置」时会发来通知，这里重新唤出窗口。
 @main
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var window: NSWindow?
     private let store = ConfigStore()
@@ -17,7 +18,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.showSettings()
+            MainActor.assumeIsolated {
+                self?.showSettings()
+            }
         }
     }
 

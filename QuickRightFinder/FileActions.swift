@@ -2,7 +2,8 @@ import Cocoa
 import FinderSync
 
 /// 右键菜单各项动作的实现。单例，菜单项的 target 指向它。
-final class FileActions: NSObject {
+/// 无状态，声明 Sendable 以满足 Swift 6 严格并发对 static let shared 的检查。
+final class FileActions: NSObject, Sendable {
     static let shared = FileActions()
 
     // 当前右键所在的目录（Finder 正在查看的文件夹）
