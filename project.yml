@@ -36,7 +36,7 @@ targets:
       path: QuickRight/QuickRight.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.com.quickright.QuickRight
+          - tech.newxin-quickright.app
         com.apple.security.files.user-selected.read-write: true
     dependencies:
       - target: QuickRightFinder
@@ -60,7 +60,7 @@ targets:
       path: QuickRightFinder/QuickRightFinder.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.com.quickright.QuickRight
+          - tech.newxin-quickright.app
         com.apple.security.files.user-selected.read-only: true
     settings:
       base:

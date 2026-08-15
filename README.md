@@ -29,7 +29,7 @@ open QuickRight.xcodeproj
 ```
 
 在 Xcode 中：
-1. 选中 `QuickRight` 和 `QuickRightFinder` 两个 target，开启 **Signing & Capabilities → App Groups**，均填入 `group.com.quickright.QuickRight`（与代码中的 `AppInfo.appGroupID` 一致）。
+1. 选中 `QuickRight` 和 `QuickRightFinder` 两个 target，开启 **Signing & Capabilities → App Groups**，均填入 `tech.newxin-quickright.app`（与代码中的 `AppInfo.appGroupID` 一致）。
 2. 选择你的 Development Team（或在 `project.yml` 的 `DEVELOPMENT_TEAM` 填入 Team ID）。
 3. 运行 `QuickRight` scheme。
 
