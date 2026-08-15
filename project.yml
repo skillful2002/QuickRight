@@ -22,13 +22,17 @@ targets:
       - path: QuickRight
       - path: Shared
     info:
-      CFBundleName: QuickRight
-      CFBundleDisplayName: 右键快捷
-      CFBundleIdentifier: com.quickright.QuickRight
-      CFBundleVersion: 1
-      CFBundleShortVersionString: 1.0.0
-      LSMinimumSystemVersion: "14.0"
-      NSHumanReadableCopyright: Copyright © 2026 QuickRight
+      # XcodeGen 会据此在 path 处生成 Info.plist，并设置 INFOPLIST_FILE。
+      path: QuickRight/Info.plist
+      properties:
+        CFBundleName: QuickRight
+        CFBundleDisplayName: 右键快捷
+        CFBundleIdentifier: com.quickright.QuickRight
+        CFBundleVersion: "1"
+        CFBundleShortVersionString: "1.0.0"
+        LSMinimumSystemVersion: "14.0"
+        NSHumanReadableCopyright: Copyright © 2026 QuickRight
+    # 引用已存在的 .entitlements 文件（映射到 CODE_SIGN_ENTITLEMENTS）。
     entitlements: QuickRight/QuickRight.entitlements
     dependencies:
       - target: QuickRightFinder
@@ -39,13 +43,15 @@ targets:
       - path: QuickRightFinder
       - path: Shared
     info:
-      CFBundleName: QuickRightFinder
-      CFBundleIdentifier: com.quickright.QuickRightFinder
-      CFBundleVersion: 1
-      CFBundleShortVersionString: 1.0.0
-      NSExtension:
-        NSExtensionPointIdentifier: com.apple.FinderSync
-        NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).FinderSync"
+      path: QuickRightFinder/Info.plist
+      properties:
+        CFBundleName: QuickRightFinder
+        CFBundleIdentifier: com.quickright.QuickRightFinder
+        CFBundleVersion: "1"
+        CFBundleShortVersionString: "1.0.0"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.FinderSync
+          NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).FinderSync"
     entitlements: QuickRightFinder/QuickRightFinder.entitlements
     settings:
       base:

@@ -17,5 +17,9 @@ xcuserdata/
 .DS_Store
 *.zip
 
+# XcodeGen 生成的 Info.plist（由 project.yml 生成，无需纳入版本控制）
+QuickRight/Info.plist
+QuickRightFinder/Info.plist
+
 # Local project memory / WorkBuddy data
 .workbuddy/
