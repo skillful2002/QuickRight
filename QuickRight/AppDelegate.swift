@@ -10,9 +10,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let store = ConfigStore()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        NSLog("QuickRight: applicationDidFinishLaunching 开始执行")
         // 首次启动：若配置文件尚不存在，写入默认配置，保证主程序与扩展读到一致内容。
         if ConfigIO.load() == nil {
             ConfigIO.save(store.config)
+            NSLog("QuickRight: 已写入默认配置文件")
         }
         showSettings()
 
@@ -29,6 +31,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func showSettings() {
+        NSLog("QuickRight: showSettings 进入, window 是否已存在=\(window != nil)")
         if window == nil {
             let root = ContentView().environmentObject(store)
             let controller = NSHostingController(rootView: root)
@@ -46,9 +49,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             win.isReleasedWhenClosed = false
             win.center()
             window = win
+            NSLog("QuickRight: 设置窗口已创建")
         }
         window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+        NSLog("QuickRight: 已调用 makeKeyAndOrderFront + activate")
     }
 
     /// 关闭最后一个窗口即退出（工具类 App 行为）。
