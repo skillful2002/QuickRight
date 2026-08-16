@@ -11,12 +11,12 @@ settings:
     MACOSX_DEPLOYMENT_TARGET: "14.0"
     SWIFT_VERSION: "6.0"
     CODE_SIGN_STYLE: Automatic
+    # 用户 Apple ID 的 Team ID（免费账号即可）。写死在此处，避免
+    # xcodegen generate 重生成工程时把 Xcode 里手选的 Team 冲掉，
+    # 否则 Archive 会静默退化成 ad-hoc 本地签名，Finder 扩展不被加载。
+    DEVELOPMENT_TEAM: "7Y35UPV3BS"
     ENABLE_HARDENED_RUNTIME: true
     ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-    # 不在此硬编码 DEVELOPMENT_TEAM：请在 Xcode 的 Signing & Capabilities 里
-    # 为两个 target 选择你的 Apple ID（免费账号即可）作为 Team。
-    # Finder Sync 扩展必须用「带 Team 的正式开发签名」才能被系统加载进 Finder；
-    # 留空会被 Xcode 26 当成 ad-hoc 本地签名，扩展将不会被 Finder 加载。
 targets:
   QuickRight:
     type: application
